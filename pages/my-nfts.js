@@ -1,11 +1,9 @@
-// we want to load the users nfts and display
-
 import { ethers } from 'ethers';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Web3Modal from 'web3modal';
 
-import { nftaddress, nftmarketaddress } from '../config';
+import { nftAddress, nftMarketAddress } from '../config';
 
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json';
 import CLMarket from '../artifacts/contracts/CLMarket.sol/CLMarket.json';
@@ -30,9 +28,9 @@ export default function MyAssets() {
     const signer = provider.getSigner();
     setAddress(await signer.getAddress());
 
-    const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider);
+    const tokenContract = new ethers.Contract(nftAddress, NFT.abi, provider);
     const marketContract = new ethers.Contract(
-      nftmarketaddress,
+      nftMarketAddress,
       CLMarket.abi,
       signer
     );
@@ -65,11 +63,11 @@ export default function MyAssets() {
     return (
       <div>
         <h1 className="px-20 py-7 text-4x1 font-bold">
-          You do not own any NFTs currently :(
+          You do not own any NFTs currently
         </h1>
         <p
           className="font-bold text-right text-xl"
-          style={{ marginTop: '34.5%', marginRight: '1%' }}
+          style={{ marginTop: '30%', marginRight: '1%' }}
         >
           Account: {address}
         </p>
@@ -78,39 +76,41 @@ export default function MyAssets() {
 
   return (
     <div className="p-4">
-      <div className="px-4" style={{ maxWidth: '1600px' }}>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
-          {nfts.map((nft, i) => (
-            <div key={i} className="border shadow rounded-x1 overflow-hidden">
-              <img src={nft.image} />
-              <div className="p-4 bg-white">
-                <p
-                  style={{ height: '64px' }}
-                  className="p-3 text-black font-bold border-b-4 border-amber-300"
-                >
-                  {nft.name}
-                </p>
-                <div style={{ height: '72px', overflow: 'auto' }}>
-                  <p className="p-3 text-gray-500 font-bold">
-                    {nft.description}
+      <h1 style={{ fontSize: '20px', color: 'black', fontWeight: 'bold' }}>
+        My NFTs
+      </h1>
+      <div style={{ marginLeft: '7%', padding: '10px' }}>
+        <div className="px-4" style={{ maxWidth: '1600px' }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
+            {nfts.map((nft, i) => (
+              <div key={i} className="border shadow rounded-x1 overflow-hidden">
+                <img src={nft.image} />
+                <div className="p-4 bg-white">
+                  <p
+                    style={{ height: '64px' }}
+                    className="p-3 text-black font-bold border-b-4 border-amber-300 "
+                  >
+                    {nft.name}
                   </p>
+                  <div style={{ height: '72px', overflow: 'auto' }}>
+                    <p className="p-3 text-gray-500 font-bold">
+                      {nft.description}
+                    </p>
+                  </div>
+                </div>
+                <div className="px-6 pb-2 bg-white ">
+                  <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-black mr-2 mb-2">
+                    {nft.price} ETH
+                  </span>
                 </div>
               </div>
-              <div className="p-4 bg-black">
-                <p className="text-3x-1 mb-4 font-bold text-white">
-                  {nft.price} ETH
-                </p>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
+        <p className="font-bold text-right text-xl" style={{ marginTop: '2%' }}>
+          Account: {address}
+        </p>
       </div>
-      <p
-        className="font-bold text-right text-xl"
-        style={{ marginTop: '6%', marginRight: '1%' }}
-      >
-        Account: {address}
-      </p>
     </div>
   );
 }

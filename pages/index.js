@@ -1,9 +1,10 @@
 import { ethers } from 'ethers';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import axios from 'axios';
 import Web3Modal from 'web3modal';
 
-import { nftaddress, nftmarketaddress } from '../config';
+import { nftAddress, nftMarketAddress } from '../config';
 
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json';
 import CLMarket from '../artifacts/contracts/CLMarket.sol/CLMarket.json';
@@ -18,14 +19,16 @@ export default function Home() {
     getAddress();
   }, []);
 
+  const router = useRouter();
+
   async function loadNFTs() {
     // what we want to load:
     // ***provider, tokenContract, marketContract, data for our marketItems***
 
     const provider = new ethers.providers.JsonRpcProvider();
-    const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider);
+    const tokenContract = new ethers.Contract(nftAddress, NFT.abi, provider);
     const marketContract = new ethers.Contract(
-      nftmarketaddress,
+      nftMarketAddress,
       CLMarket.abi,
       provider
     );
@@ -71,14 +74,14 @@ export default function Home() {
     const signer = provider.getSigner();
 
     const contract = new ethers.Contract(
-      nftmarketaddress,
+      nftMarketAddress,
       CLMarket.abi,
       signer
     );
 
     const price = ethers.utils.parseUnits(nft.price.toString(), 'ether');
     const transaction = await contract.createMarketSale(
-      nftaddress,
+      nftAddress,
       nft.tokenId,
       {
         value: price,
@@ -87,6 +90,7 @@ export default function Home() {
 
     await transaction.wait();
     loadNFTs();
+    router.push('./my-nfts');
   }
   if (loadingState === 'loaded' && !nfts.length)
     return (
@@ -96,7 +100,7 @@ export default function Home() {
         </h1>
         <p
           className="font-bold text-right text-xl"
-          style={{ marginTop: '34.5%', marginRight: '1%' }}
+          style={{ marginTop: '30%', marginRight: '1%' }}
         >
           Account: {address}
         </p>
@@ -104,7 +108,7 @@ export default function Home() {
     );
 
   return (
-    <div className="p-4">
+    <div style={{ marginLeft: '7%', padding: '10px' }}>
       <div className="px-4" style={{ maxWidth: '1600px' }}>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
           {nfts.map((nft, i) => (
@@ -123,12 +127,14 @@ export default function Home() {
                   </p>
                 </div>
               </div>
-              <div className="p-4 bg-black">
-                <p className="text-3x-1 mb-4 font-bold text-white">
+              <div className="px-6 pb-2 bg-white ">
+                <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-black mr-2 mb-2">
                   {nft.price} ETH
-                </p>
+                </span>
+              </div>
+              <div className="p-4 bg-black">
                 <button
-                  className="w-full bg-purple-500 text-white font-bold py-3 px-12 border border-gray-500 rounded-lg transform hover:translate-y-1 transition duration-200 ease-in-out shadow-lg"
+                  className="w-full bg-teal-400 hover:bg-teal-300 text-gray-800 font-bold py-2 px-4 rounded-l"
                   onClick={() => buyNFT(nft)}
                 >
                   Buy

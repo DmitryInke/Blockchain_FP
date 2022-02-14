@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { useEffect, useState } from 'react';
 import Web3Modal from 'web3modal';
 import { create as ipfsHttpClient } from 'ipfs-http-client';
-import { nftaddress, nftmarketaddress } from '../config';
+import { nftAddress, nftMarketAddress } from '../config';
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json';
 import { useRouter } from 'next/router';
 import CLMarket from '../artifacts/contracts/CLMarket.sol/CLMarket.json';
@@ -20,7 +20,9 @@ export default function MintItem() {
     name: '',
     description: '',
   });
+
   const router = useRouter();
+
   useEffect(() => {
     getAddress();
   }, []);
@@ -76,7 +78,7 @@ export default function MintItem() {
     const signer = provider.getSigner();
 
     // we want to create the token
-    let contract = new ethers.Contract(nftaddress, NFT.abi, signer);
+    let contract = new ethers.Contract(nftAddress, NFT.abi, signer);
     let transaction = await contract.mintToken(url);
     let tx = await transaction.wait();
     let event = tx.events[0];
@@ -85,11 +87,11 @@ export default function MintItem() {
     const price = ethers.utils.parseUnits(formInput.price, 'ether');
 
     // list the item for sale on the marketplace
-    contract = new ethers.Contract(nftmarketaddress, CLMarket.abi, signer);
+    contract = new ethers.Contract(nftMarketAddress, CLMarket.abi, signer);
     let listingPrice = await contract.getListingPrice();
     listingPrice = listingPrice.toString();
 
-    transaction = await contract.makeMarketItem(nftaddress, tokenId, price, {
+    transaction = await contract.makeMarketItem(nftAddress, tokenId, price, {
       value: listingPrice,
     });
     await transaction.wait();
@@ -99,48 +101,68 @@ export default function MintItem() {
   return (
     <div>
       <div className="flex justify-center">
-        <div className="w-1/2 flex flex-col pb-12">
-          <input
-            placeholder="Asset Name"
-            className="mt-8 border rounded-full p-4"
-            onChange={e =>
-              updateFormInput({ ...formInput, name: e.target.value })
-            }
-          />
-          <input
-            placeholder="Asset Description"
-            className="mt-2 border rounded-full p-4"
-            onChange={e =>
-              updateFormInput({ ...formInput, description: e.target.value })
-            }
-          />
-          <input
-            placeholder="Asset Price in Eth"
-            className="mt-2 border rounded-full p-4"
-            onChange={e =>
-              updateFormInput({ ...formInput, price: e.target.value })
-            }
-          />
-          <input
-            type="file"
-            name="Asset"
-            className="mt-4 "
-            onChange={onChange}
-          />{' '}
-          {fileUrl && (
-            <img className="rounded mt-4" width="250px" src={fileUrl} />
-          )}
-          <button
-            onClick={createMarket}
-            className="font-bold mt-4 w-full bg-purple-500 text-white font-bold py-3 px-12 border border-gray-500 rounded-lg transform hover:translate-y-1 transition duration-200 ease-in-out shadow-lg"
+        <div
+          style={{
+            border: '1px solid',
+            width: '50%',
+            position: 'relative',
+            top: '20%',
+            backgroundColor: 'rgb(148 163 184)',
+            transform: 'translate(0,20%)',
+          }}
+        >
+          <div
+            className=" flex flex-col pb-12"
+            style={{
+              width: '95%',
+              position: 'relative',
+              left: '50%',
+              transform: 'translate(-50%,0)',
+            }}
           >
-            Mint NFT
-          </button>
+            <input
+              placeholder="Asset Name"
+              className="mt-8 p-4"
+              onChange={e =>
+                updateFormInput({ ...formInput, name: e.target.value })
+              }
+            />
+            <input
+              placeholder="Asset Description"
+              className="mt-2 p-4"
+              onChange={e =>
+                updateFormInput({ ...formInput, description: e.target.value })
+              }
+            />
+            <input
+              placeholder="Asset Price in Eth"
+              className="mt-2 p-4"
+              onChange={e =>
+                updateFormInput({ ...formInput, price: e.target.value })
+              }
+            />
+            <input
+              type="file"
+              name="Asset"
+              className="mt-4 "
+              onChange={onChange}
+            />{' '}
+            {fileUrl && (
+              <img className="rounded mt-4" width="250px" src={fileUrl} />
+            )}
+            <button
+              onClick={createMarket}
+              className="bg-teal-400 hover:bg-teal-300 text-gray-800 font-bold py-2 px-4 rounded-l mt-6"
+            >
+              Mint NFT
+            </button>
+          </div>
         </div>
       </div>
+
       <p
         className="font-bold text-right text-xl"
-        style={{ marginTop: '6%', marginRight: '1%' }}
+        style={{ marginTop: '8%', marginRight: '1%' }}
       >
         Account: {address}
       </p>
