@@ -4,15 +4,17 @@ import { useRouter } from 'next/router';
 import axios from 'axios';
 import Web3Modal from 'web3modal';
 
-import { nftAddress, nftMarketAddress } from '../config';
+import { nftAddress, nftMarketAddress, coinAddress } from '../config';
 
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json';
 import CLMarket from '../artifacts/contracts/CLMarket.sol/CLMarket.json';
+import CLC from '../artifacts/contracts/CLC.sol/CLC.json';
 
 export default function Home() {
   const [nfts, setNFts] = useState([]);
   const [address, setAddress] = useState([]);
   const [loadingState, setLoadingState] = useState('not-loaded');
+  const [balance, setBalance] = useState(0);
 
   useEffect(() => {
     loadNFTs();
@@ -62,7 +64,11 @@ export default function Home() {
     const connection = await web3Modal.connect();
     const provider = new ethers.providers.Web3Provider(connection);
     const signer = provider.getSigner();
-    setAddress(await signer.getAddress());
+    const currentAddress = await signer.getAddress();
+    setAddress(currentAddress);
+    let contract = new ethers.Contract(coinAddress, CLC.abi, signer);
+    let currentBalance = await contract.balanceOf(currentAddress);
+    setBalance(ethers.utils.formatUnits(currentBalance.toString(), 'ether'));
   }
 
   // function to buy nfts for market
@@ -102,7 +108,7 @@ export default function Home() {
           className="font-bold text-right text-xl"
           style={{ marginTop: '30%', marginRight: '1%' }}
         >
-          Account: {address}
+          Account: {address} | Balance: {Math.round(balance)} CLC
         </p>
       </div>
     );
@@ -132,20 +138,24 @@ export default function Home() {
                   {nft.price} ETH
                 </span>
               </div>
-              <div className="p-4 bg-black">
-                <button
-                  className="w-full bg-teal-400 hover:bg-teal-300 text-gray-800 font-bold py-2 px-4 rounded-l"
-                  onClick={() => buyNFT(nft)}
-                >
-                  Buy
-                </button>
-              </div>
+              {nft.seller !== address ? (
+                <div className="p-4 bg-black">
+                  <button
+                    className="w-full bg-teal-400 hover:bg-teal-300 text-gray-800 font-bold py-2 px-4 rounded-l"
+                    onClick={() => buyNFT(nft)}
+                  >
+                    Buy
+                  </button>
+                </div>
+              ) : (
+                ''
+              )}
             </div>
           ))}
         </div>
       </div>
       <p className="font-bold text-right text-xl" style={{ marginTop: '2%' }}>
-        Account: {address}
+        Account: {address} | Balance: {Math.round(balance)} CLC
       </p>
     </div>
   );

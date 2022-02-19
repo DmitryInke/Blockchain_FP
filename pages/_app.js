@@ -34,6 +34,13 @@ function CryptoLionMarketplace({ Component, pageProps }) {
               </a>
             </Link>
           </li>
+          <li className="flex-1 mr-2">
+            <Link href="/buy-coin">
+              <a className="font-bold text-center block border border-neutral-900 rounded py-2 px-4 bg-stone-400 hover:bg-stone-300 text-black ">
+                Buy CLC
+              </a>
+            </Link>
+          </li>
           <li className="text-center flex-1">
             <Link href="/account-dashboard">
               <a className="font-bold text-center block border border-neutral-900 rounded py-2 px-4 bg-stone-400 hover:bg-stone-300 text-black ">

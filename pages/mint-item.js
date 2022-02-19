@@ -2,10 +2,11 @@ import { ethers } from 'ethers';
 import { useEffect, useState } from 'react';
 import Web3Modal from 'web3modal';
 import { create as ipfsHttpClient } from 'ipfs-http-client';
-import { nftAddress, nftMarketAddress } from '../config';
+import { nftAddress, nftMarketAddress, coinAddress } from '../config';
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json';
 import { useRouter } from 'next/router';
 import CLMarket from '../artifacts/contracts/CLMarket.sol/CLMarket.json';
+import CLC from '../artifacts/contracts/CLC.sol/CLC.json';
 
 // in this component we set the ipfs up to host our nft data of
 // file storage
@@ -15,6 +16,7 @@ const client = ipfsHttpClient('https://ipfs.infura.io:5001/api/v0');
 export default function MintItem() {
   const [fileUrl, setFileUrl] = useState(null);
   const [address, setAddress] = useState([]);
+  const [balance, setBalance] = useState(0);
   const [formInput, updateFormInput] = useState({
     price: '',
     name: '',
@@ -32,7 +34,11 @@ export default function MintItem() {
     const connection = await web3Modal.connect();
     const provider = new ethers.providers.Web3Provider(connection);
     const signer = provider.getSigner();
-    setAddress(await signer.getAddress());
+    const currentAddress = await signer.getAddress();
+    setAddress(currentAddress);
+    let contract = new ethers.Contract(coinAddress, CLC.abi, signer);
+    let currentBalance = await contract.balanceOf(currentAddress);
+    setBalance(ethers.utils.formatUnits(currentBalance.toString(), 'ether'));
   }
 
   // set up a function to fireoff when we update files in our form - we can add our
@@ -164,7 +170,7 @@ export default function MintItem() {
         className="font-bold text-right text-xl"
         style={{ marginTop: '8%', marginRight: '1%' }}
       >
-        Account: {address}
+        Account: {address} | Balance: {Math.round(balance)} CLC
       </p>
     </div>
   );

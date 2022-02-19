@@ -3,16 +3,18 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Web3Modal from 'web3modal';
 
-import { nftAddress, nftMarketAddress } from '../config';
+import { nftAddress, nftMarketAddress, coinAddress } from '../config';
 
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json';
 import CLMarket from '../artifacts/contracts/CLMarket.sol/CLMarket.json';
+import CLC from '../artifacts/contracts/CLC.sol/CLC.json';
 
 export default function MyAssets() {
   // array of nfts
   const [nfts, setNFts] = useState([]);
   const [address, setAddress] = useState([]);
   const [loadingState, setLoadingState] = useState('not-loaded');
+  const [balance, setBalance] = useState(0);
 
   useEffect(() => {
     loadNFTs();
@@ -26,7 +28,11 @@ export default function MyAssets() {
     const connection = await web3Modal.connect();
     const provider = new ethers.providers.Web3Provider(connection);
     const signer = provider.getSigner();
-    setAddress(await signer.getAddress());
+    const currentAddress = await signer.getAddress();
+    setAddress(currentAddress);
+    let contract = new ethers.Contract(coinAddress, CLC.abi, signer);
+    let currentBalance = await contract.balanceOf(currentAddress);
+    setBalance(ethers.utils.formatUnits(currentBalance.toString(), 'ether'));
 
     const tokenContract = new ethers.Contract(nftAddress, NFT.abi, provider);
     const marketContract = new ethers.Contract(
@@ -69,7 +75,7 @@ export default function MyAssets() {
           className="font-bold text-right text-xl"
           style={{ marginTop: '30%', marginRight: '1%' }}
         >
-          Account: {address}
+          Account: {address} | Balance: {Math.round(balance)} CLC
         </p>
       </div>
     );
@@ -108,7 +114,7 @@ export default function MyAssets() {
           </div>
         </div>
         <p className="font-bold text-right text-xl" style={{ marginTop: '2%' }}>
-          Account: {address}
+          Account: {address} | Balance: {Math.round(balance)} CLC
         </p>
       </div>
     </div>

@@ -22,7 +22,7 @@ contract CLMarket is ReentrancyGuard {
 
     address payable owner;
 
-    uint256 listingPrice = 0.0010 ether; // 10 NIS
+    uint256 listingPrice = 0.0100 ether; // 100 NIS
 
     constructor() {
         //set the owner
@@ -91,7 +91,7 @@ contract CLMarket is ReentrancyGuard {
         );
 
         // NFT transaction
-        IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
+        IERC721(nftContract).transferFrom(msg.sender, msg.sender, tokenId);
 
         emit MarketTokenMinted(
             itemId,
@@ -113,15 +113,18 @@ contract CLMarket is ReentrancyGuard {
     {
         uint256 price = idToMarketToken[itemId].price;
         uint256 tokenId = idToMarketToken[itemId].tokenId;
+        address nftSeller = idToMarketToken[itemId].seller;
         require(
             msg.value == price,
             'Please submit the asking price in order to continue'
         );
 
+        require(nftSeller != msg.sender, 'You cannot purchase your NFT');
+
         // transfer the amount to the seller
         idToMarketToken[itemId].seller.transfer(msg.value);
         // transfer the token from contract address to the buyer
-        IERC721(nftContract).transferFrom(address(this), msg.sender, tokenId);
+        IERC721(nftContract).transferFrom(nftSeller, msg.sender, tokenId);
         idToMarketToken[itemId].owner = payable(msg.sender);
         idToMarketToken[itemId].sold = true;
         _tokensSold.increment();
@@ -129,7 +132,7 @@ contract CLMarket is ReentrancyGuard {
         payable(owner).transfer(listingPrice);
     }
 
-    // function to fetchMarketItems - minting, buying ans selling
+    // function to fetchMarketItems - minting, buying and selling
     // return the number of unsold items
 
     function fetchMarketTokens() public view returns (MarketToken[] memory) {

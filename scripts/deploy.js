@@ -12,9 +12,15 @@ async function main() {
   await nft.deployed();
   console.log('NFT contract deployed to: ', nft.address);
 
+  const COIN = await hre.ethers.getContractFactory('CLC');
+  const coin = await COIN.deploy(nftMarket.address);
+  await coin.deployed();
+  console.log('Coin contract deployed successfully to: ', coin.address);
+
   let config = `
   export const nftMarketAddress = '${nftMarket.address}'
-  export const nftAddress = '${nft.address}'`;
+  export const nftAddress = '${nft.address}'
+  export const coinAddress = '${coin.address}'`;
 
   let data = JSON.stringify(config);
   fs.writeFileSync('config.js', JSON.parse(data));
