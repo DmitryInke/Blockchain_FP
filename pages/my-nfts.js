@@ -106,7 +106,7 @@ export default function MyAssets() {
                 </div>
                 <div className="px-6 pb-2 bg-white ">
                   <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-black mr-2 mb-2">
-                    {nft.price} ETH
+                    {nft.price} CLC
                   </span>
                 </div>
               </div>

@@ -4,6 +4,7 @@ pragma solidity ^0.8.4;
 import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
 import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
 import '@openzeppelin/contracts/utils/Counters.sol';
+import './CLC.sol';
 // security against transactions for multiple requests
 import 'hardhat/console.sol';
 
@@ -21,12 +22,14 @@ contract CLMarket is ReentrancyGuard {
     // charge a listing fee so the owner makes a commission
 
     address payable owner;
+    CLC clcToken;
 
     uint256 listingPrice = 0.0100 ether; // 100 NIS
 
-    constructor() {
+    constructor(CLC _clcToken) {
         //set the owner
         owner = payable(msg.sender);
+        clcToken = _clcToken;
     }
 
     struct MarketToken {
@@ -90,9 +93,6 @@ contract CLMarket is ReentrancyGuard {
             false
         );
 
-        // NFT transaction
-        IERC721(nftContract).transferFrom(msg.sender, msg.sender, tokenId);
-
         emit MarketTokenMinted(
             itemId,
             nftContract,
@@ -114,15 +114,15 @@ contract CLMarket is ReentrancyGuard {
         uint256 price = idToMarketToken[itemId].price;
         uint256 tokenId = idToMarketToken[itemId].tokenId;
         address nftSeller = idToMarketToken[itemId].seller;
-        require(
-            msg.value == price,
-            'Please submit the asking price in order to continue'
-        );
 
         require(nftSeller != msg.sender, 'You cannot purchase your NFT');
 
         // transfer the amount to the seller
-        idToMarketToken[itemId].seller.transfer(msg.value);
+        clcToken.transferFrom(
+            msg.sender,
+            idToMarketToken[itemId].seller,
+            price
+        );
         // transfer the token from contract address to the buyer
         IERC721(nftContract).transferFrom(nftSeller, msg.sender, tokenId);
         idToMarketToken[itemId].owner = payable(msg.sender);

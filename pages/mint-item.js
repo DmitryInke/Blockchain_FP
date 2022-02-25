@@ -100,6 +100,7 @@ export default function MintItem() {
     transaction = await contract.makeMarketItem(nftAddress, tokenId, price, {
       value: listingPrice,
     });
+
     await transaction.wait();
     router.push('./');
   }
@@ -141,7 +142,7 @@ export default function MintItem() {
               }
             />
             <input
-              placeholder="Asset Price in Eth"
+              placeholder="Asset Price in CLC"
               className="mt-2 p-4"
               onChange={e =>
                 updateFormInput({ ...formInput, price: e.target.value })

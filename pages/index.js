@@ -86,12 +86,14 @@ export default function Home() {
     );
 
     const price = ethers.utils.parseUnits(nft.price.toString(), 'ether');
+    let contractCoin = new ethers.Contract(coinAddress, CLC.abi, signer);
+    await contractCoin.approve(nftMarketAddress, price, {
+      from: address,
+    });
+
     const transaction = await contract.createMarketSale(
       nftAddress,
-      nft.tokenId,
-      {
-        value: price,
-      }
+      nft.tokenId
     );
 
     await transaction.wait();
@@ -135,7 +137,7 @@ export default function Home() {
               </div>
               <div className="px-6 pb-2 bg-white ">
                 <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-black mr-2 mb-2">
-                  {nft.price} ETH
+                  {nft.price} CLC
                 </span>
               </div>
               {nft.seller !== address ? (
